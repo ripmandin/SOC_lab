@@ -214,7 +214,7 @@ services:
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
       - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
-      - server.publicBaseUrl: "http://51.250.92.33:5601"
+      - server.publicBaseUrl=http://51.250.92.33:5601
 
     mem_limit: ${MEM_LIMIT}
     healthcheck:
