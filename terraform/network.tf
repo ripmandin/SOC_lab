@@ -1,6 +1,6 @@
-resource "yandex_vpc_subnet" "lab-subnet-a" {
-  v4_cidr_blocks = ["10.2.0.0/16"]
+resource "yandex_vpc_subnet" "elk" {
+  name           = "subnet1"
   zone           = "ru-central1-a"
   network_id     = "enp70u58qbodbpk9b837"
+  v4_cidr_blocks = ["192.168.10.0/24"]
 }
-
