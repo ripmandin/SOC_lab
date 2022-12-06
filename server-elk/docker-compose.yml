@@ -70,13 +70,17 @@ services:
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - esdata01:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+      - ingress
     ports:
       - ${ES_PORT}:9200
     environment:
       - node.name=es01
       - cluster.name=${CLUSTER_NAME}
+      - network.host=0.0.0.0
       - cluster.initial_master_nodes=es01
-      - discovery.seed_hosts=es01
+#      - discovery.seed_hosts=es01
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - bootstrap.memory_lock=true
       - xpack.security.authc.api_key.enabled=true #for fleet api-auth
@@ -199,14 +203,19 @@ services:
     volumes:
       - certs:/usr/share/kibana/config/certs
       - kibanadata:/usr/share/kibana/data
+    networks:
+      - elastic
+      - ingress
     ports:
       - ${KIBANA_PORT}:5601
     environment:
-      - SERVERNAME=kibana
-      - ELASTICSEARCH_HOSTS=https://es01:9200
+      - SERVER_NAME=localhost
+      - ELASTICSEARCH_HOSTS=http://es01:9200
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
       - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+      - server.publicBaseUrl: "http://51.250.92.33:5601"
+
     mem_limit: ${MEM_LIMIT}
     healthcheck:
       test:
@@ -223,6 +232,8 @@ services:
       es01: { condition: service_healthy }
       kibana: { condition: service_healthy }
     image: logstash:${STACK_VERSION}
+    environment:
+      - http.host=0.0.0.0
     #volumes:
     #  - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
     #  - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
@@ -241,3 +252,7 @@ volumes:
   #   driver: local
   kibanadata:
     driver: local
+
+networks:
+  elastic:
+  ingress:
