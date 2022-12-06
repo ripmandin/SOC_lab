@@ -258,7 +258,7 @@ services:
 
     volumes:
       - certs:/etc/pki/tls/certs/fleet-server.pem"
-      - "./testing/docker/fleet-server/key.pem:/etc/pki/tls/private/fleet-server-key.pem
+      - ./testing/docker/fleet-server/key.pem:/etc/pki/tls/private/fleet-server-key.pem
 
   elastic-agent:
     depends_on:
