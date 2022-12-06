@@ -2,7 +2,7 @@ version: "2.2"
 
 services:
   setup:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    image: elasticsearch:${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
     user: "0"
@@ -66,7 +66,7 @@ services:
     depends_on:
       setup:
         condition: service_healthy
-    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    image: elasticsearch:${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - esdata01:/usr/share/elasticsearch/data
@@ -79,6 +79,7 @@ services:
       - discovery.seed_hosts=es02,es03
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - bootstrap.memory_lock=true
+      - xpack.security.authc.api_key.enabled=true #for fleet api-auth
       - xpack.security.enabled=true
       - xpack.security.http.ssl.enabled=true
       - xpack.security.http.ssl.key=certs/es01/es01.key
@@ -109,7 +110,7 @@ services:
   es02:
     depends_on:
       - es01
-    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    image: elasticsearch:${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - esdata02:/usr/share/elasticsearch/data
@@ -149,7 +150,7 @@ services:
   es03:
     depends_on:
       - es02
-    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    image: elasticsearch:${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
       - esdata03:/usr/share/elasticsearch/data
@@ -194,7 +195,7 @@ services:
         condition: service_healthy
       es03:
         condition: service_healthy
-    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    image: kibana:${STACK_VERSION}
     volumes:
       - certs:/usr/share/kibana/config/certs
       - kibanadata:/usr/share/kibana/data
@@ -221,7 +222,7 @@ services:
     depends_on:
       es01: { condition: service_healthy }
       kibana: { condition: service_healthy }
-    image: docker.elastic.co/logstash/logstash:${STACK_VERSION}
+    image: logstash:${STACK_VERSION}
     #volumes:
     #  - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
     #  - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
@@ -233,7 +234,7 @@ services:
     depends_on:
       es01: { condition: service_healthy }
       kibana: { condition: service_healthy }
-    image: docker.elastic.co/beats/elastic-agent:${STACK_VERSION}
+    image: elastic/elastic-agent:${STACK_VERSION}
     ports:
       - 8220:8220
     healthcheck:
@@ -256,14 +257,15 @@ services:
       KIBANA_FLEET_PASSWORD: "${ES_SUPERUSER_PASS:-changeme}"
 
     volumes:
-      - "./testing/docker/fleet-server/certificate.pem:/etc/pki/tls/certs/fleet-server.pem"
-      - "./testing/docker/fleet-server/key.pem:/etc/pki/tls/private/fleet-server-key.pem"
+      - certs:/etc/pki/tls/certs/fleet-server.pem"
+      - "./testing/docker/fleet-server/key.pem:/etc/pki/tls/private/fleet-server-key.pem
 
   elastic-agent:
     depends_on:
       es01: { condition: service_healthy }
       kibana: { condition: service_healthy }
-    image: docker.elastic.co/beats/elastic-agent:${STACK_VERSION}
+      fleet-srver: { condition: service_healthy }
+    image: elastic/elastic-agent:${STACK_VERSION}
     container_name: elastic-agent
     restart: always
     user: root # note, synthetic browser monitors require this set to `elastic-agent`
