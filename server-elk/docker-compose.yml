@@ -57,6 +57,7 @@ services:
       retries: 120
 
   es01:
+    restart: unless-stopped
     depends_on:
       setup:
         condition: service_healthy
@@ -103,6 +104,7 @@ services:
       retries: 120
 
   kibana:
+    restart: unless-stopped
     depends_on:
       es01:
         condition: service_healthy
@@ -113,14 +115,14 @@ services:
     ports:
       - ${KIBANA_PORT}:5601
     environment:
-    server.ssl.enabled: true
-    server.ssl.certificate: certs/kibana/kibana.crt
-    server.ssl.key: certs/kibana/kibana.key
-      - SERVER_NAME=localhost
-      - ELASTICSEARCH_HOSTS=https://es01:9200
-      - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
-      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+    server.ssl.enabled: "true"
+    server.ssl.certificate: "certs/kibana/kibana.crt"
+    server.ssl.key: "certs/kibana/kibana.key"
+    server.name: kibana
+    elasticsearch.hosts: "https://es01:9200"
+    elasticsearch.username: "kibana_system"
+    elasticsearch.password: ${KIBANA_PASSWORD}
+    elasticsearch.ssl.certificateAuthorities: "config/certs/ca/ca.crt"
 
     mem_limit: ${MEM_LIMIT}
     healthcheck:
