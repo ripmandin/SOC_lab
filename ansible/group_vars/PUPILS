@@ -1,0 +1,3 @@
+---
+ansible_user : ubuntu
+ansible_ssh_privete_key_file : C:\Users\User\.ssh\id_ed25519

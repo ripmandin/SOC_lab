@@ -1,0 +1,5 @@
+[SERVER]
+server ansible_host=84.201.132.36:5601
+
+[PUPILS]
+pupil1 ansible_host=84.252.128.156
